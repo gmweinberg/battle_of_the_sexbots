@@ -1,0 +1,19 @@
+This project is for automating tournaments of computer players (bots) playing the "battle of the sexes" abstract game, hence "sexbots".
+
+Battle of the sexes is a game which was originally designed using language which would be considered highly offensive today. For reasons of my own, I will maintain the offensive language.
+
+There are two players, called the "male" and the "female". The male would prefer to do "man stuff", the female would prefer to do "woman stuff", but each wants to do something together rather than do something alone, so the strategic form payoff matrix looks like this:
+
+            Man Stuff    Woman Stuff
+Man Stuff     2, 1           0, 0
+Woman Stuff   0, 0          1, 2
+
+where the first number is the payoff for the male and the second the payoff for the female.
+
+A Tournament man have on or more "generations". Fr each generation if the tournament, we begin with a set of "male" and "female" players of different types, which determine their actions. Each player of one sex has a certain number of interactions (called rounds)with each player of the opposite sex. Scores are tabulated at the end or each generation.
+
+In a multi-generation tournament, the players reproduce or are eliminated according to their success. The males are effectively only competing against the other males, the females against the other females. For each round the number of players of each sex remains the same. Players have decendents proportional to their scores (e.g. an average scoring player will get one decendent), with the leftovers raffled off randomly.
+
+
+
+
