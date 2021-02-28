@@ -2,8 +2,7 @@
 
 from ast import literal_eval
 from tournament import Tournament
-from simpleplayers import (RandomPlayer, DominantPlayer, SubmissivePlayer, CoopPlayer, TitForTatPlayer,
-                          AltPlayer, ContraryPlayer)
+from simpleplayers import create_simple_player
 
 dist = {"male": { "random":2,
                   "dom": 2,
@@ -28,35 +27,22 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.dist:
         dist = literal_eval(args.dist)
+        if 'both' in dist:
+            for sex in ['male', 'female']:
+                if sex in dist:
+                    dist[sex].update(dist['both'])
+                else:
+                    dist[sex] = dist['both']
+            print(repr(dist))
     tourn = Tournament(rounds=args.rounds)
     tourn.verbosity = args.verbosity
     for sex in ['male', 'female']:
         for name in dist[sex]:
-            if name == "random":
-                class_ = RandomPlayer
-            elif name == "dom":
-                class_ = DominantPlayer
-            elif name == "sub":
-                class_ = SubmissivePlayer
-            elif name == "coop":
-                class_ = CoopPlayer
-            elif name == "titfortat":
-                class_ = TitForTatPlayer
-            elif name == "alt":
-                class_ = AltPlayer
-            elif name == "contrary":
-                class_ = ContraryPlayer
-            else:
-                raise Exception("unsupported player " + name)
             for ii in range(dist[sex][name] * args.mult):
-                tourn.add_player(class_(sex=sex, name=name))
+                tourn.add_player(create_simple_player(sex=sex, name=name))
     for gen in range(args.generations):
         tourn.resolve()
         tourn.reproduce()
         print()
         tourn.show_distribution()
         print()
-
-
-
-

@@ -10,6 +10,20 @@ class RandomPlayer(Player):
     def get_action(self, history):
         return random.choice(['MS', 'WS'])
 
+class NashPlayer(Player):
+    """Nash player also plays randomly, but at the nash equilibrium raio of 2/3 preferred action."""
+    def __init__(self, name, sex):
+        super(NashPlayer, self).__init__(name, sex)
+
+    def get_action(self, history):
+        if self.sex == 'male':
+            if random.random() < 2.0/3:
+                return 'MS'
+            return 'WS'
+        if random.random() < 2.0/3:
+            return 'WS'
+        return 'MS'
+
 class DominantPlayer(Player):
     """Dominant player always plays his or her preferred action"""
     def __init__(self, name, sex):
@@ -110,3 +124,44 @@ class PigheadPlayer(Player):
         if self.sex == 'male':
             return prev[0]
         return prev[1]
+
+name_dict = {
+              "random":  RandomPlayer,
+              "nash": NashPlayer,
+              "dom": DominantPlayer,
+              "sub": SubmissivePlayer,
+              "coop": CoopPlayer,
+              "titfortat": TitForTatPlayer,
+              "alt": AltPlayer,
+              "contrary": ContraryPlayer,
+              "pighead": PigheadPlayer,
+            }
+
+
+def create_simple_player(name, sex):
+    """Create one of these simpleplayers and return it."""
+    if name in name_dict:
+         player = name_dict[name](name, sex)
+         return player
+    # find  best match
+    best_chars = 0
+    best = None
+    for key in name_dict.keys():
+        matched = 0
+        for ii, char in enumerate(key):
+            if ii < len(name) and char == name[ii]:
+                matched += 1
+                if matched > best_chars:
+                     best_chars = matched
+                     best = name_dict[key]
+            else:
+                break
+
+    player = best(name, sex)
+    return player
+
+if __name__ == '__main__':
+    import sys
+    name = sys.argv[1]
+    player = create_simple_player(name, 'male')
+    print(repr(player))

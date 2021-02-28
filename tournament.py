@@ -7,8 +7,8 @@ class Tournament(object):
     def __init__(self, rounds):
         self.males = []
         self.females = []
+        self.dist_history = []
         self.rounds = rounds # number of times each male interacts with each female
-        self.generations = 1
         self.verbosity = 1
 
     def add_player(self, player):
@@ -20,6 +20,10 @@ class Tournament(object):
 
     def resolve(self):
         """Determine results for one generation of a tournament"""
+        for male in self.males:
+            male.score = 0
+        for female in self.females:
+            female.score = 0
         for male in self.males:
             for female in self.females:
                 history = []
@@ -48,10 +52,10 @@ class Tournament(object):
                 print(female.name, female.score)
 
     def reproduce(self):
-         self.males = self.reproduce_asex(self.males)
-         self.females = self.reproduce_asex(self.females)
+         self.males = self._reproduce_asex(self.males)
+         self.females = self._reproduce_asex(self.females)
 
-    def reproduce_asex(self, players):
+    def _reproduce_asex(self, players):
         """For a list of players of a sex, determine the number of decendents each player should have."""
         # For now I'll do this the easy way. firts do guarenteed children, then randomly assign leftover children with a
         # probability proportional to leftover sscores. We will not have exactly the same number of children each round,
@@ -67,7 +71,8 @@ class Tournament(object):
             while player.score > repro_score:
                 children.append(copy(player))
                 player.score -= repro_score
-                print(player.name + ' reproduced (guarantee)')
+                if self.verbosity > 1:
+                    print(player.name + ' reproduced (guarantee)')
         # now randomly divvy up the leftover children
         if len(children) == num_players: #somehow things worked out exactly
             return children
@@ -79,19 +84,30 @@ class Tournament(object):
             chance = player.score / required
             if random.random() < chance:
                 children.append(copy(player))
-                print(player.name + ' reproduced (chance {}'.format(chance))
+                if self.verbosity > 1:
+                    print(player.name + ' reproduced (chance {}'.format(chance))
             else:
                 pass
                 #print(player.name + 'failed to reproduce (chance {}'.format(chance))
         return children
 
-    def show_distribution(self):
-        print('male distribution', self.get_sex_distribution(self.males))
-        print('female distribution', self.get_sex_distribution(self.females))
+    def store_dist_hist(self):
+        """Store the current player distribution in dist_history"""
+        dist = {'males': self.get_sex_distribution('male'),
+                'females': self.get_sex_distribution('female')}
+        self.dist_history.append(dist)
 
-    def get_sex_distribution(self, players):
+    def show_distribution(self):
+        print('male distribution', self.get_sex_distribution('male'))
+        print('female distribution', self.get_sex_distribution('female'))
+
+    def get_sex_distribution(self, sex):
         """get the number of players of each type for a sex"""
         dist = defaultdict(int)
+        if sex == 'male':
+            players = self.males
+        else:
+            players = self.females
         for player in players:
             dist[player.name] += 1
         return dist
