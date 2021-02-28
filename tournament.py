@@ -1,10 +1,14 @@
 #!/usr/bin/env python
+import random
+from collections import defaultdict
+from copy import copy
 
 class Tournament(object):
     def __init__(self, rounds):
         self.males = []
         self.females = []
         self.rounds = rounds # number of times each male interacts with each female
+        self.generations = 1
         self.verbosity = 1
 
     def add_player(self, player):
@@ -15,9 +19,12 @@ class Tournament(object):
             self.females.append(player)
 
     def resolve(self):
+        """Determine results for one generation of a tournament"""
         for male in self.males:
             for female in self.females:
                 history = []
+                if self.verbosity > 1:
+                    print('male {} female {}'.format(male.name, female.name))
                 for round in range(self.rounds):
                     male_action = male.get_action(history)
                     female_action = female.get_action(history)
@@ -25,6 +32,10 @@ class Tournament(object):
                     male.score += score[0]
                     female.score += score[1]
                     history.append((male_action, female_action))
+                    if self.verbosity > 1:
+                        print('male action {} female action {} male score {} female score {}'.format(male_action, female_action, score[0], score[1]))
+            if self.verbosity > 1:
+                print()
         self.males.sort(key=lambda x: x.score, reverse=True)
         self.females.sort(key=lambda x: x.score, reverse=True)
         if self.verbosity:
@@ -35,6 +46,56 @@ class Tournament(object):
             print('female scores')
             for female in self.females:
                 print(female.name, female.score)
+
+    def reproduce(self):
+         self.males = self.reproduce_asex(self.males)
+         self.females = self.reproduce_asex(self.females)
+
+    def reproduce_asex(self, players):
+        """For a list of players of a sex, determine the number of decendents each player should have."""
+        # For now I'll do this the easy way. firts do guarenteed children, then randomly assign leftover children with a
+        # probability proportional to leftover sscores. We will not have exactly the same number of children each round,
+        # actual number may slightly go up or doew.
+        children = []
+        players.sort(key = lambda x: x.name)
+        total_score = sum(player.score for player in players)
+        num_players = len(players)
+        repro_score = total_score // num_players
+        #print('repro_score', repro_score)
+        # first do guarenteed children
+        for player in players:
+            while player.score > repro_score:
+                children.append(copy(player))
+                player.score -= repro_score
+                print(player.name + ' reproduced (guarantee)')
+        # now randomly divvy up the leftover children
+        if len(children) == num_players: #somehow things worked out exactly
+            return children
+        total_score = sum(player.score for player in players)
+        extra_children = num_players - len(children)
+        required = float(total_score) /  extra_children # amount to gurantee a child.
+        # print('required', required)
+        for player in players:
+            chance = player.score / required
+            if random.random() < chance:
+                children.append(copy(player))
+                print(player.name + ' reproduced (chance {}'.format(chance))
+            else:
+                pass
+                #print(player.name + 'failed to reproduce (chance {}'.format(chance))
+        return children
+
+    def show_distribution(self):
+        print('male distribution', self.get_sex_distribution(self.males))
+        print('female distribution', self.get_sex_distribution(self.females))
+
+    def get_sex_distribution(self, players):
+        """get the number of players of each type for a sex"""
+        dist = defaultdict(int)
+        for player in players:
+            dist[player.name] += 1
+        return dist
+
 
     def score_actions(self, male_action, female_action):
         if male_action != female_action:

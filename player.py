@@ -11,4 +11,3 @@ class Player(object):
     def mutate(self):
         """Randomly adjust internal paramaters"""
         pass
-

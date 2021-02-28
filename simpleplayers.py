@@ -28,7 +28,7 @@ class SubmissivePlayer(Player):
     def get_action(self, history):
         if self.sex == 'male':
             return 'WS'
-        return 'WS'
+        return 'MS'
 
 class CoopPlayer(Player):
     """Coop(erative) player will play randomly on the first round and on all rounds where on the previous
@@ -57,12 +57,14 @@ class TitForTatPlayer(Player):
             return random.choice(['MS', 'WS'])
         prev = history[-1]
         if prev[0] == prev[1]:
-            return prev[0]
+            if prev[0] == 'MS':
+                return 'WS'
+            return 'MS'
         return random.choice(['MS', 'WS'])
 
 class AltPlayer(Player):
     """AltPlayer plays the first round randomly, then in each successive round plays the opposite
-       of what it played the first round."""
+       of what it played the previous round."""
     def __init__(self, name, sex):
         super(AltPlayer, self).__init__(name, sex)
 
@@ -80,7 +82,7 @@ class AltPlayer(Player):
 
 class ContraryPlayer(Player):
     """ContraryPlayer plays the first round randomly, then in each successive round plays the opposite
-       of what the other player played the first round."""
+       of what the other player played the previous round."""
     def __init__(self, name, sex):
         super(ContraryPlayer, self).__init__(name, sex)
 
@@ -96,4 +98,15 @@ class ContraryPlayer(Player):
             return 'WS'
         return 'MS'
 
+class PigheadPlayer(Player):
+    """Pighead player plays randomly the first round, then keeps playing the same thing."""
+    def __init__(self, name, sex):
+        super(PigheadPlayer, self).__init__(name, sex)
 
+    def get_action(self, history):
+        if not history:
+            return random.choice(['MS', 'WS'])
+        prev = history[-1]
+        if self.sex == 'male':
+            return prev[0]
+        return prev[1]

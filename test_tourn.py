@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from ast import literal_eval
 from tournament import Tournament
 from simpleplayers import (RandomPlayer, DominantPlayer, SubmissivePlayer, CoopPlayer, TitForTatPlayer,
                           AltPlayer, ContraryPlayer)
@@ -20,8 +21,15 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument('--rounds', type=int, default=10)
+    parser.add_argument('--verbosity', type=int, default=1)
+    parser.add_argument('--generations', type=int, default=1)
+    parser.add_argument('--mult', type=int, default=1, help='multiplier of distribution')
+    parser.add_argument('--dist', help='distribution', default=None)
     args = parser.parse_args()
+    if args.dist:
+        dist = literal_eval(args.dist)
     tourn = Tournament(rounds=args.rounds)
+    tourn.verbosity = args.verbosity
     for sex in ['male', 'female']:
         for name in dist[sex]:
             if name == "random":
@@ -40,20 +48,14 @@ if __name__ == '__main__':
                 class_ = ContraryPlayer
             else:
                 raise Exception("unsupported player " + name)
-            for ii in range(dist[sex][name]):
+            for ii in range(dist[sex][name] * args.mult):
                 tourn.add_player(class_(sex=sex, name=name))
-
-        #player = RandomPlayer(name='random', sex=sex)
-        #tourn.add_player(player)
-        #player = DominantPlayer(name='dom', sex=sex)
-        #tourn.add_player(player)
-        #player = SubmissivePlayer(name='sub', sex=sex)
-        #tourn.add_player(player)
-        #player = CoopPlayer(name='coop', sex=sex)
-        #tourn.add_player(player)
-        #player = TitForTatPlayer(name='tit', sex=sex)
-        #tourn.add_player(player)
-    tourn.resolve()
+    for gen in range(args.generations):
+        tourn.resolve()
+        tourn.reproduce()
+        print()
+        tourn.show_distribution()
+        print()
 
 
 
