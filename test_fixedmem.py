@@ -8,10 +8,10 @@ from tournament import Tournament
 if __name__ == '__main__':
     tourn = Tournament(rounds=8)
     tourn.verbosity = 3
-    player = imp_simple_player('male', 'dom')
+    player = imp_simple_player('male', 'contrary')
     tourn.add_player(player)
     print('name {} hist_params {} action_params {}'.format(player.name, player.hist_params, player.action_params))
-    player = imp_simple_player('male', 'random')
+    player = imp_simple_player('male', 'alt')
     #tourn.add_player(player)
     player = imp_simple_player('male', 'titfortat')
     #tourn.add_player(player)
@@ -21,10 +21,10 @@ if __name__ == '__main__':
     #tourn.add_player(player)
     player = imp_simple_player('female', 'random')
     #tourn.add_player(player)
-    player = imp_simple_player('female', 'titfortat')
-    #tourn.add_player(player)
-    player = imp_simple_player('female', 'coop')
+    player = imp_simple_player('female', 'random')
     tourn.add_player(player)
+    player = imp_simple_player('female', 'coop')
+    #tourn.add_player(player)
     print('name {} hist_params {} action_params {}'.format(player.name, player.hist_params, player.action_params))
     tourn.resolve()
 

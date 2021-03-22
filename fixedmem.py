@@ -68,10 +68,12 @@ class FixedMemPlayer(Player):
             ii += 1
         rand = random.random()
         param = self.action_params[pos]
-        print('player {} history {} pos {} rand {} param {}'.format(self.name, temp_history, pos, rand, param))
         if random.random() < self.action_params[pos]:
-            return 'MS'
-        return 'WS'
+            action = 'MS'
+        else:
+            action = 'WS'
+        print('player {} history {} pos {} rand {} param {} action {}'.format(self.name, temp_history, pos, rand, param, action))
+        return action
 
 def imp_simple_player(sex, type_, name=None):
     """Create a fixedmem player that acts like a simpleplayer of the appropriate sex and type.
@@ -85,6 +87,14 @@ def imp_simple_player(sex, type_, name=None):
         else:
             params = [0.0]
         return FixedMemPlayer(name, sex, depth, params)
+    if type_ == 'sub':
+        depth = 0
+        if sex == 'male':
+            params = [0.0]
+        else:
+            params = [1.0]
+        return FixedMemPlayer(name, sex, depth, params)
+
     if type_ == "random":
         depth = 0
         params = [0.5]
@@ -96,6 +106,20 @@ def imp_simple_player(sex, type_, name=None):
     if type_ == "coop":
         depth = 1
         params = [0.5, 0.5, 1, 0.5, 0.5, 0]
+        return FixedMemPlayer(name, sex, depth, params)
+    if type_ == "alt":
+        depth = 1
+        if sex == 'male':
+            params = [0.5, 0.5, 0, 1, 0, 1]
+        else:
+            params = [0.5, 0.5, 0, 0, 1, 1]
+        return FixedMemPlayer(name, sex, depth, params)
+    if type_ == "contrary":
+        depth = 1
+        if sex == 'male':
+            params = [0.5, 0.5, 0, 0, 1, 1]
+        else:
+            params = [0.5, 0.5, 0, 1, 0, 1]
         return FixedMemPlayer(name, sex, depth, params)
     raise ValueError('unsupported type {}'.format(type_))
 
