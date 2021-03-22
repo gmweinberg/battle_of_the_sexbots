@@ -21,9 +21,9 @@ class Tournament(object):
     def resolve(self):
         """Determine results for one generation of a tournament"""
         for male in self.males:
-            male.score = 0
+            male.pre_match()
         for female in self.females:
-            female.score = 0
+            female.pre_match()
         for male in self.males:
             for female in self.females:
                 history = []
